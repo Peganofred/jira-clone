@@ -1,4 +1,23 @@
+import { useSelector } from 'react-redux'
+
+const statusMap = {
+  todo: { label: 'To Do', cls: 'bg-gray-100 text-gray-700' },
+  'in-progress': { label: 'In Progress', cls: 'bg-blue-100 text-blue-700' },
+  done: { label: 'Done', cls: 'bg-green-100 text-green-700' },
+}
+
+const priorityMap = {
+  high: { label: 'High', cls: 'bg-red-100 text-red-700' },
+  medium: { label: 'Medium', cls: 'bg-orange-100 text-orange-700' },
+  low: { label: 'Low', cls: 'bg-green-100 text-green-700' },
+}
+
 function TasksPage() {
+  const tasks = useSelector((state) => state.tasks.items)
+  const members = useSelector((state) => state.members.items)
+
+  const getMemberName = (id) => members.find((m) => m.id === id)?.name || 'Unassigned'
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -19,13 +38,25 @@ function TasksPage() {
             </tr>
           </thead>
           <tbody>
-            {/* Phase 4 mein real data aayega */}
-            <tr className="border-t">
-              <td className="px-4 py-3">Sample Task 1</td>
-              <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Todo</span></td>
-              <td className="px-4 py-3"><span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">High</span></td>
-              <td className="px-4 py-3 text-gray-500">—</td>
-            </tr>
+            {tasks.map((task) => {
+              const status = statusMap[task.status]
+              const priority = priorityMap[task.priority]
+              return (
+                <tr key={task.id} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <p className="font-medium">{task.title}</p>
+                    <p className="text-xs text-gray-500">{task.description}</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-1 rounded text-xs ${status.cls}`}>{status.label}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-1 rounded text-xs ${priority.cls}`}>{priority.label}</span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">{getMemberName(task.assignee)}</td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
