@@ -1,4 +1,10 @@
 import { useSelector, useDispatch } from 'react-redux'
+import {
+  DndContext,
+  useDraggable,
+  useDroppable,
+} from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
 import { updateTask } from '../redux/slices/tasksSlice'
 
 const columns = [
@@ -7,12 +13,76 @@ const columns = [
   { key: 'done', title: 'Done', dot: 'bg-green-500', container: 'bg-green-100' },
 ]
 
-const statusOrder = ['todo', 'in-progress', 'done']
-
 const priorityDot = {
   high: 'bg-red-500',
   medium: 'bg-orange-400',
   low: 'bg-green-400',
+}
+
+// 📖 Draggable task card component (via useDraggable hook)
+function DraggableTask({ task, memberName }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: task.id,
+  })
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.5 : 1,
+    cursor: isDragging ? 'grabbing' : 'grab',
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className="bg-white rounded shadow p-3 text-sm hover:shadow-md transition-shadow touch-none"
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <span className={`w-2 h-2 rounded-full ${priorityDot[task.priority]}`} />
+        <p className="font-medium">{task.title}</p>
+      </div>
+      {task.description && (
+        <p className="text-xs text-gray-500 mb-2 line-clamp-1">{task.description}</p>
+      )}
+      <p className="text-xs text-gray-400">{memberName || 'No assignee'}</p>
+    </div>
+  )
+}
+
+// 📖 Droppable column component (via useDroppable hook)
+function DroppableColumn({ column, tasks, members }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.key,
+  })
+
+  const getMemberName = (id) => members.find((m) => m.id === id)?.name || ''
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`${column.container} rounded-lg p-4 min-h-[300px] transition-colors ${
+        isOver ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+      }`}
+    >
+      <div className="flex items-center gap-2 mb-4">
+        <span className={`w-2.5 h-2.5 rounded-full ${column.dot}`} />
+        <h3 className="font-semibold text-sm">{column.title}</h3>
+        <span className="ml-auto bg-white/70 px-2 py-0.5 rounded text-xs font-medium">
+          {tasks.length}
+        </span>
+      </div>
+      <div className="space-y-2">
+        {tasks.map((task) => (
+          <DraggableTask key={task.id} task={task} memberName={getMemberName(task.assignee)} />
+        ))}
+        {tasks.length === 0 && (
+          <p className="text-xs text-gray-400 text-center py-4">No tasks here</p>
+        )}
+      </div>
+    </div>
+  )
 }
 
 function BoardPage() {
@@ -20,75 +90,40 @@ function BoardPage() {
   const members = useSelector((state) => state.members.items)
   const dispatch = useDispatch()
 
-  const getMemberName = (id) => members.find((m) => m.id === id)?.name || ''
+  // 📖 Fires when a drag ends and the item is dropped
+  const handleDragEnd = (event) => {
+    const { active, over } = event
+    if (!over) return
 
-  const moveTask = (task, direction) => {
-    const currentIndex = statusOrder.indexOf(task.status)
-    const newIndex = currentIndex + direction
-    if (newIndex < 0 || newIndex >= statusOrder.length) return
-    dispatch(updateTask({ id: task.id, status: statusOrder[newIndex] }))
+    // active.id = dragged task's id, over.id = destination column key
+    const task = tasks.find((t) => t.id === active.id)
+    if (task && task.status !== over.id) {
+      dispatch(updateTask({ id: task.id, status: over.id }))
+    }
   }
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Kanban Board</h2>
+      <p className="text-sm text-gray-500 mb-4">
+        👆 Cards ko drag karke columns mein move karo
+      </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {columns.map((col) => {
-          const colTasks = tasks.filter((t) => t.status === col.key)
-          return (
-            <div key={col.key} className={`${col.container} rounded-lg p-4 min-h-[300px]`}>
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`w-2.5 h-2.5 rounded-full ${col.dot}`} />
-                <h3 className="font-semibold text-sm">{col.title}</h3>
-                <span className="ml-auto bg-white/70 px-2 py-0.5 rounded text-xs font-medium">
-                  {colTasks.length}
-                </span>
-              </div>
-              <div className="space-y-2">
-                {colTasks.map((task) => (
-                  <div key={task.id} className="bg-white rounded shadow p-3 text-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`w-2 h-2 rounded-full ${priorityDot[task.priority]}`} />
-                      <p className="font-medium">{task.title}</p>
-                    </div>
-                    {task.description && (
-                      <p className="text-xs text-gray-500 mb-2 line-clamp-1">{task.description}</p>
-                    )}
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-xs text-gray-400">
-                        {getMemberName(task.assignee) || 'No assignee'}
-                      </p>
-                      {/* Status movement buttons */}
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => moveTask(task, -1)}
-                          disabled={col.key === 'todo'}
-                          className="text-xs w-6 h-6 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-                          title="Move left"
-                        >
-                          ←
-                        </button>
-                        <button
-                          onClick={() => moveTask(task, 1)}
-                          disabled={col.key === 'done'}
-                          className="text-xs w-6 h-6 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-                          title="Move right"
-                        >
-                          →
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {colTasks.length === 0 && (
-                  <p className="text-xs text-gray-400 text-center py-4">No tasks here</p>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <DndContext onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {columns.map((col) => {
+            const colTasks = tasks.filter((t) => t.status === col.key)
+            return (
+              <DroppableColumn
+                key={col.key}
+                column={col}
+                tasks={colTasks}
+                members={members}
+              />
+            )
+          })}
+        </div>
+      </DndContext>
     </div>
   )
 }
