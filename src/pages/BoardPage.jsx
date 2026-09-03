@@ -1,10 +1,13 @@
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateTask } from '../redux/slices/tasksSlice'
 
 const columns = [
   { key: 'todo', title: 'To Do', dot: 'bg-gray-500', container: 'bg-gray-200' },
   { key: 'in-progress', title: 'In Progress', dot: 'bg-blue-500', container: 'bg-blue-100' },
   { key: 'done', title: 'Done', dot: 'bg-green-500', container: 'bg-green-100' },
 ]
+
+const statusOrder = ['todo', 'in-progress', 'done']
 
 const priorityDot = {
   high: 'bg-red-500',
@@ -15,8 +18,16 @@ const priorityDot = {
 function BoardPage() {
   const tasks = useSelector((state) => state.tasks.items)
   const members = useSelector((state) => state.members.items)
+  const dispatch = useDispatch()
 
   const getMemberName = (id) => members.find((m) => m.id === id)?.name || ''
+
+  const moveTask = (task, direction) => {
+    const currentIndex = statusOrder.indexOf(task.status)
+    const newIndex = currentIndex + direction
+    if (newIndex < 0 || newIndex >= statusOrder.length) return
+    dispatch(updateTask({ id: task.id, status: statusOrder[newIndex] }))
+  }
 
   return (
     <div>
@@ -44,9 +55,30 @@ function BoardPage() {
                     {task.description && (
                       <p className="text-xs text-gray-500 mb-2 line-clamp-1">{task.description}</p>
                     )}
-                    <p className="text-xs text-gray-400">
-                      {getMemberName(task.assignee) || 'No assignee'}
-                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xs text-gray-400">
+                        {getMemberName(task.assignee) || 'No assignee'}
+                      </p>
+                      {/* Status movement buttons */}
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => moveTask(task, -1)}
+                          disabled={col.key === 'todo'}
+                          className="text-xs w-6 h-6 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Move left"
+                        >
+                          ←
+                        </button>
+                        <button
+                          onClick={() => moveTask(task, 1)}
+                          disabled={col.key === 'done'}
+                          className="text-xs w-6 h-6 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Move right"
+                        >
+                          →
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
                 {colTasks.length === 0 && (
