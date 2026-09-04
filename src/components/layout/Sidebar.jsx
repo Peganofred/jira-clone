@@ -5,6 +5,7 @@ const menuItems = [
   { to: '/projects', label: 'Projects', icon: '📁' },
   { to: '/tasks', label: 'Tasks', icon: '✅' },
   { to: '/board', label: 'Board', icon: '🗂️' },
+  { to: '/team', label: 'Team', icon: '👥' },
 ]
 
 function Sidebar() {

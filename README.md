@@ -4,7 +4,7 @@ A frontend Jira-style project management tool, built with **React**, **Redux Too
 
 The project is being built in explicit, incremental phases — each phase is a real, working slice of a Jira-like task management app (UI shell → state → projects → tasks → board → team → search → comments → notifications), rather than one big upfront build.
 
-> **Status:** Phase 5 of 9 complete. See [Roadmap](#roadmap) below.
+> **Status:** Phase 6 of 9 complete. See [Roadmap](#roadmap) below.
 
 ![React](https://img.shields.io/badge/React-18-blue)
 ![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2.x-purple)
@@ -105,33 +105,36 @@ npm run preview
 jira-clone/
 ├── src/
 │   ├── components/
-│   │   └── layout/       # Sidebar, Topbar, Layout (shared shell)
-│   ├── pages/            # Dashboard, Projects, Tasks, Board, 404
-│   ├── redux/slices/     # Redux Toolkit slices (Phase 2+)
-│   ├── services/         # REST API layer (Phase 8+)
-│   └── data/             # Mock data (Phase 3+)
+│   │   ├── layout/       # Sidebar, Topbar, Layout (shared shell)
+│   │   ├── ui/           # Reusable primitives (Modal, Avatar)
+│   │   └── *.jsx         # Reusable forms (ProjectForm, TaskForm, MemberForm)
+│   ├── pages/            # Dashboard, Projects, Tasks, Board, Team, 404
+│   ├── redux/slices/     # Redux Toolkit slices (projects, tasks, members)
+│   ├── services/         # REST API layer (Phase 9)
+│   └── data/             # Mock data
 ├── index.html
 └── vite.config.js
 ```
 
 ## Features
 
-### Currently implemented (Phase 5)
+### Currently implemented (Phase 6)
 
 - **App shell / layout** — persistent sidebar navigation + topbar on every page.
-- **Routing** — Dashboard, Projects, Tasks, Board, and a 404 page; React Router navigation without page reloads.
+- **Routing** — Dashboard, Projects, Tasks, Board, Team, and a 404 page; React Router navigation without page reloads.
 - **Dashboard** — stat cards (projects, tasks, in-progress, completed) driven by live Redux state.
 - **Projects CRUD** — create, edit, and delete projects via modal forms; color picker.
 - **Tasks CRUD** — create, edit, and delete tasks; assign to a project and a team member.
+- **Team members page** — add/remove members with name, role, and auto-gendered avatar; shows each member's assigned task count.
+- **Inline task assignment** — assign or reassign a member to a task directly from the Tasks table or a Board card, without opening the form.
 - **Task assignment** — tasks link to projects and team members.
 - **Tasks table** — list with project, status/priority badges, assignee, and actions; filter by project.
 - **Kanban board with drag & drop** — 3-column board (To Do / In Progress / Done); drag cards between columns with dnd-kit, with drop-target highlighting.
-- **Reusable modal** — shared `Modal` and form components reused across Add/Edit flows.
+- **Reusable modal & avatar** — shared `Modal`, `Avatar`, and form components reused across Add/Edit flows.
 - **Tailwind CSS** — fully responsive styling via utility classes.
 
 ### Planned
 
-- Team members & task assignment (full member management UI)
 - Search and filter by status/priority
 - Task comments
 - Notifications UI
@@ -146,7 +149,7 @@ jira-clone/
 | 3     | Projects CRUD (create, read, update, delete)        | ✅ Done     |
 | 4     | Tasks CRUD + Kanban board layout                    | ✅ Done     |
 | 5     | Drag & drop on the board (dnd-kit)                  | ✅ Done     |
-| 6     | Team members & task assignment                      | ⏳ Planned  |
+| 6     | Team members & task assignment                      | ✅ Done     |
 | 7     | Search & filter by status/priority                  | ⏳ Planned  |
 | 8     | Task comments                                       | ⏳ Planned  |
 | 9     | Notifications UI + REST API integration & polish    | ⏳ Planned  |

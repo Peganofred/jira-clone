@@ -114,7 +114,19 @@ function TasksPage() {
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded text-xs ${priority.cls}`}>{priority.label}</span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{getMemberName(task.assignee)}</td>
+                  <td className="px-4 py-3">
+                    {/* 📖 Inline assignee dropdown - direct assignment without opening form */}
+                    <select
+                      value={task.assignee || ''}
+                      onChange={(e) => dispatch(updateTask({ id: task.id, assignee: e.target.value }))}
+                      className="px-2 py-1 border border-gray-300 rounded text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Unassigned</option>
+                      {members.map((m) => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
                       <button

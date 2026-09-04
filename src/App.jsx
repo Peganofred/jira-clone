@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage'
 import ProjectsPage from './pages/ProjectsPage'
 import TasksPage from './pages/TasksPage'
 import BoardPage from './pages/BoardPage'
+import TeamPage from './pages/TeamPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="tasks" element={<TasksPage />} />
         <Route path="board" element={<BoardPage />} />
+        <Route path="team" element={<TeamPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

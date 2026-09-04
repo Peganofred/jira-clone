@@ -20,7 +20,7 @@ const priorityDot = {
 }
 
 // 📖 Draggable task card component (via useDraggable hook)
-function DraggableTask({ task, memberName }) {
+function DraggableTask({ task, members, dispatch }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id,
   })
@@ -30,6 +30,8 @@ function DraggableTask({ task, memberName }) {
     opacity: isDragging ? 0.5 : 1,
     cursor: isDragging ? 'grabbing' : 'grab',
   }
+
+  const assignedMember = members.find((m) => m.id === task.assignee)
 
   return (
     <div
@@ -46,18 +48,28 @@ function DraggableTask({ task, memberName }) {
       {task.description && (
         <p className="text-xs text-gray-500 mb-2 line-clamp-1">{task.description}</p>
       )}
-      <p className="text-xs text-gray-400">{memberName || 'No assignee'}</p>
+      {/* 📖 Assignee shown as avatar (interactive dropdown wrapped in buttons flow) */}
+      <select
+        value={task.assignee || ''}
+        onChange={(e) => dispatch(updateTask({ id: task.id, assignee: e.target.value }))}
+        onClick={(e) => e.stopPropagation()}
+        className="mt-2 w-full px-2 py-1 border border-gray-200 rounded text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+        title={assignedMember?.name || 'Assign to member'}
+      >
+        <option value="">Unassigned</option>
+        {members.map((m) => (
+          <option key={m.id} value={m.id}>{m.name}</option>
+        ))}
+      </select>
     </div>
   )
 }
 
 // 📖 Droppable column component (via useDroppable hook)
-function DroppableColumn({ column, tasks, members }) {
+function DroppableColumn({ column, tasks, members, dispatch }) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.key,
   })
-
-  const getMemberName = (id) => members.find((m) => m.id === id)?.name || ''
 
   return (
     <div
@@ -75,7 +87,7 @@ function DroppableColumn({ column, tasks, members }) {
       </div>
       <div className="space-y-2">
         {tasks.map((task) => (
-          <DraggableTask key={task.id} task={task} memberName={getMemberName(task.assignee)} />
+          <DraggableTask key={task.id} task={task} members={members} dispatch={dispatch} />
         ))}
         {tasks.length === 0 && (
           <p className="text-xs text-gray-400 text-center py-4">No tasks here</p>
@@ -119,6 +131,7 @@ function BoardPage() {
                 column={col}
                 tasks={colTasks}
                 members={members}
+                dispatch={dispatch}
               />
             )
           })}
