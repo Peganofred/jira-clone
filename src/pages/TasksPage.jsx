@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { addTask, removeTask, updateTask } from '../redux/slices/tasksSlice'
 import Modal from '../components/ui/Modal'
 import TaskForm from '../components/TaskForm'
+import TaskDetail from '../components/TaskDetail'
 
 const statusMap = {
   todo: { label: 'To Do', cls: 'bg-gray-100 text-gray-700' },
@@ -20,18 +21,22 @@ function TasksPage() {
   const tasks = useSelector((state) => state.tasks.items)
   const members = useSelector((state) => state.members.items)
   const projects = useSelector((state) => state.projects.items)
+  const comments = useSelector((state) => state.comments.items)
   const searchTerm = useSelector((state) => state.ui.searchTerm)
   const dispatch = useDispatch()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
   const [deletingTask, setDeletingTask] = useState(null)
+  const [detailTask, setDetailTask] = useState(null)
   const [projectFilter, setProjectFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('all')
 
   const getMemberName = (id) => members.find((m) => m.id === id)?.name || 'Unassigned'
   const getProjectName = (id) => projects.find((p) => p.id === id)?.name || 'Unknown'
+  const getCommentCount = (taskId) =>
+    comments.filter((c) => c.taskId === taskId).length
 
   // 📖 Combined filtering: project + status + priority + search
   const filteredTasks = tasks.filter((task) => {
@@ -163,7 +168,13 @@ function TasksPage() {
               return (
                 <tr key={task.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3">
-                    <p className="font-medium">{task.title}</p>
+                    <button
+                      onClick={() => setDetailTask(task)}
+                      className="text-left"
+                      title="View details & comments"
+                    >
+                      <p className="font-medium hover:text-blue-600">{task.title}</p>
+                    </button>
                     <p className="text-xs text-gray-500">{task.description}</p>
                   </td>
                   <td className="px-4 py-3 text-gray-600">{getProjectName(task.projectId)}</td>
@@ -187,6 +198,18 @@ function TasksPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
+                      <button
+                        onClick={() => setDetailTask(task)}
+                        className="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-100 relative"
+                        title="Comments"
+                      >
+                        💬
+                        {getCommentCount(task.id) > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center">
+                            {getCommentCount(task.id)}
+                          </span>
+                        )}
+                      </button>
                       <button
                         onClick={() => {
                           setEditingTask(task)
@@ -255,6 +278,9 @@ function TasksPage() {
           </button>
         </div>
       </Modal>
+
+      {/* 📖 Task detail + comments modal */}
+      <TaskDetail task={detailTask} onClose={() => setDetailTask(null)} />
     </div>
   )
 }

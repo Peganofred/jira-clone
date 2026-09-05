@@ -4,7 +4,7 @@ A frontend Jira-style project management tool, built with **React**, **Redux Too
 
 The project is being built in explicit, incremental phases — each phase is a real, working slice of a Jira-like task management app (UI shell → state → projects → tasks → board → team → search → comments → notifications), rather than one big upfront build.
 
-> **Status:** Phase 7 of 9 complete. See [Roadmap](#roadmap) below.
+> **Status:** Phase 8 of 9 complete. See [Roadmap](#roadmap) below.
 
 ![React](https://img.shields.io/badge/React-18-blue)
 ![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2.x-purple)
@@ -109,7 +109,7 @@ jira-clone/
 │   │   ├── ui/           # Reusable primitives (Modal, Avatar)
 │   │   └── *.jsx         # Reusable forms (ProjectForm, TaskForm, MemberForm)
 │   ├── pages/            # Dashboard, Projects, Tasks, Board, Team, 404
-│   ├── redux/slices/     # Redux Toolkit slices (projects, tasks, members)
+│   ├── redux/slices/     # Redux Toolkit slices (projects, tasks, members, comments, ui)
 │   ├── services/         # REST API layer (Phase 9)
 │   └── data/             # Mock data
 ├── index.html
@@ -118,13 +118,14 @@ jira-clone/
 
 ## Features
 
-### Currently implemented (Phase 7)
+### Currently implemented (Phase 8)
 
 - **App shell / layout** — persistent sidebar navigation + topbar on every page.
 - **Routing** — Dashboard, Projects, Tasks, Board, Team, and a 404 page; React Router navigation without page reloads.
 - **Dashboard** — stat cards (projects, tasks, in-progress, completed) driven by live Redux state.
 - **Projects CRUD** — create, edit, and delete projects via modal forms; color picker.
 - **Tasks CRUD** — create, edit, and delete tasks; assign to a project and a team member.
+- **Task comments** — add and delete comments on any task from a task-detail modal; comment list with author avatar, timestamp, and live counts on the Tasks table and Board cards.
 - **Team members page** — add/remove members with name, role, and auto-gendered avatar; shows each member's assigned task count.
 - **Inline task assignment** — assign or reassign a member to a task directly from the Tasks table or a Board card, without opening the form.
 - **Global search** — topbar search filters tasks (title/description), projects, and board cards live, via shared Redux state.
@@ -136,7 +137,6 @@ jira-clone/
 
 ### Planned
 
-- Task comments
 - Notifications UI
 - REST API integration
 
@@ -151,7 +151,7 @@ jira-clone/
 | 5     | Drag & drop on the board (dnd-kit)                  | ✅ Done     |
 | 6     | Team members & task assignment                      | ✅ Done     |
 | 7     | Search & filter by status/priority                  | ✅ Done     |
-| 8     | Task comments                                       | ⏳ Planned  |
+| 8     | Task comments                                       | ✅ Done     |
 | 9     | Notifications UI + REST API integration & polish    | ⏳ Planned  |
 
 Tracked in more detail via GitHub Issues / Projects as each phase starts.

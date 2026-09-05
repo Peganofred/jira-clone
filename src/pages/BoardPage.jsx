@@ -7,6 +7,7 @@ import {
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { updateTask } from '../redux/slices/tasksSlice'
+import TaskDetail from '../components/TaskDetail'
 
 const columns = [
   { key: 'todo', title: 'To Do', dot: 'bg-gray-500', container: 'bg-gray-200' },
@@ -21,7 +22,7 @@ const priorityDot = {
 }
 
 // 📖 Draggable task card component (via useDraggable hook)
-function DraggableTask({ task, members, dispatch }) {
+function DraggableTask({ task, members, dispatch, commentCount, onOpenDetail }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id,
   })
@@ -49,25 +50,42 @@ function DraggableTask({ task, members, dispatch }) {
       {task.description && (
         <p className="text-xs text-gray-500 mb-2 line-clamp-1">{task.description}</p>
       )}
-      {/* 📖 Assignee shown as avatar (interactive dropdown wrapped in buttons flow) */}
-      <select
-        value={task.assignee || ''}
-        onChange={(e) => dispatch(updateTask({ id: task.id, assignee: e.target.value }))}
-        onClick={(e) => e.stopPropagation()}
-        className="mt-2 w-full px-2 py-1 border border-gray-200 rounded text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-        title={assignedMember?.name || 'Assign to member'}
-      >
-        <option value="">Unassigned</option>
-        {members.map((m) => (
-          <option key={m.id} value={m.id}>{m.name}</option>
-        ))}
-      </select>
+      {/* 📖 Footer: assignee dropdown + comment button */}
+      <div className="flex items-center gap-2 mt-2">
+        <select
+          value={task.assignee || ''}
+          onChange={(e) => dispatch(updateTask({ id: task.id, assignee: e.target.value }))}
+          onClick={(e) => e.stopPropagation()}
+          className="flex-1 px-2 py-1 border border-gray-200 rounded text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          title={assignedMember?.name || 'Assign to member'}
+        >
+          <option value="">Unassigned</option>
+          {members.map((m) => (
+            <option key={m.id} value={m.id}>{m.name}</option>
+          ))}
+        </select>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onOpenDetail(task)
+          }}
+          className="relative text-xs px-2 py-1 border border-gray-200 rounded hover:bg-gray-100"
+          title="Comments"
+        >
+          💬
+          {commentCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center">
+              {commentCount}
+            </span>
+          )}
+        </button>
+      </div>
     </div>
   )
 }
 
 // 📖 Droppable column component (via useDroppable hook)
-function DroppableColumn({ column, tasks, members, dispatch }) {
+function DroppableColumn({ column, tasks, members, dispatch, commentCounts, onOpenDetail }) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.key,
   })
@@ -88,7 +106,14 @@ function DroppableColumn({ column, tasks, members, dispatch }) {
       </div>
       <div className="space-y-2">
         {tasks.map((task) => (
-          <DraggableTask key={task.id} task={task} members={members} dispatch={dispatch} />
+          <DraggableTask
+            key={task.id}
+            task={task}
+            members={members}
+            dispatch={dispatch}
+            commentCount={commentCounts[task.id] || 0}
+            onOpenDetail={onOpenDetail}
+          />
         ))}
         {tasks.length === 0 && (
           <p className="text-xs text-gray-400 text-center py-4">No tasks here</p>
@@ -101,10 +126,18 @@ function DroppableColumn({ column, tasks, members, dispatch }) {
 function BoardPage() {
   const tasks = useSelector((state) => state.tasks.items)
   const members = useSelector((state) => state.members.items)
+  const comments = useSelector((state) => state.comments.items)
   const searchTerm = useSelector((state) => state.ui.searchTerm)
   const dispatch = useDispatch()
 
   const [priorityFilter, setPriorityFilter] = useState('all')
+  const [detailTask, setDetailTask] = useState(null)
+
+  // 📖 Count comments per task: { taskId: count }
+  const commentCounts = comments.reduce((acc, c) => {
+    acc[c.taskId] = (acc[c.taskId] || 0) + 1
+    return acc
+  }, {})
 
   // 📖 Fires when a drag ends and the item is dropped
   const handleDragEnd = (event) => {
@@ -168,11 +201,16 @@ function BoardPage() {
                 tasks={colTasks}
                 members={members}
                 dispatch={dispatch}
+                commentCounts={commentCounts}
+                onOpenDetail={setDetailTask}
               />
             )
           })}
         </div>
       </DndContext>
+
+      {/* 📖 Task detail + comments modal */}
+      <TaskDetail task={detailTask} onClose={() => setDetailTask(null)} />
     </div>
   )
 }

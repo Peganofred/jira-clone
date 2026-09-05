@@ -83,3 +83,27 @@ export const initialMembers = [
   { id: 'u2', name: 'Priya Verma', role: 'Designer', avatarColor: 'bg-green-600' },
   { id: 'u3', name: 'Rahul Gupta', role: 'Tester', avatarColor: 'bg-purple-600' },
 ]
+
+export const initialComments = [
+  {
+    id: 'c1',
+    taskId: 't1',
+    author: 'u2',
+    text: 'Pehle ek hero section ka design high resolution mein bhej dijiye.',
+    createdAt: '2026-08-02T10:30:00',
+  },
+  {
+    id: 'c2',
+    taskId: 't1',
+    author: 'u1',
+    text: 'Design approve ho gaya, ab implementation shuru karte hain.',
+    createdAt: '2026-08-03T09:15:00',
+  },
+  {
+    id: 'c3',
+    taskId: 't3',
+    author: 'u3',
+    text: 'Login validation ka test case likh raha hoon.',
+    createdAt: '2026-08-12T14:00:00',
+  },
+]
