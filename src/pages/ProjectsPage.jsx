@@ -14,11 +14,23 @@ const colorClasses = {
 
 function ProjectsPage() {
   const projects = useSelector((state) => state.projects.items)
+  const searchTerm = useSelector((state) => state.ui.searchTerm)
   const dispatch = useDispatch()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
+
+  // 📖 Search filter for projects (name or description)
+  const filteredProjects = searchTerm
+    ? projects.filter((p) => {
+        const term = searchTerm.toLowerCase()
+        return (
+          p.name.toLowerCase().includes(term) ||
+          p.description?.toLowerCase().includes(term)
+        )
+      })
+    : projects
 
   // 📖 Create
   const handleCreate = (formData) => {
@@ -62,7 +74,7 @@ function ProjectsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {projects.map((proj) => (
+        {filteredProjects.map((proj) => (
           <div key={proj.id} className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-lg ${colorClasses[proj.color]} flex items-center justify-center text-white font-bold`}>
@@ -96,6 +108,11 @@ function ProjectsPage() {
             <p className="text-xs text-gray-500">Members: {proj.members.length}</p>
           </div>
         ))}
+        {filteredProjects.length === 0 && (
+          <p className="text-gray-400 col-span-full text-center py-8">
+            No projects found{searchTerm ? ` for "${searchTerm}"` : ''}
+          </p>
+        )}
       </div>
 
       {/* 📖 Add/Edit modal */}

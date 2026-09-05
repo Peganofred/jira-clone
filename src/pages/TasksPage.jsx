@@ -20,18 +20,36 @@ function TasksPage() {
   const tasks = useSelector((state) => state.tasks.items)
   const members = useSelector((state) => state.members.items)
   const projects = useSelector((state) => state.projects.items)
+  const searchTerm = useSelector((state) => state.ui.searchTerm)
   const dispatch = useDispatch()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
   const [deletingTask, setDeletingTask] = useState(null)
   const [projectFilter, setProjectFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [priorityFilter, setPriorityFilter] = useState('all')
 
   const getMemberName = (id) => members.find((m) => m.id === id)?.name || 'Unassigned'
   const getProjectName = (id) => projects.find((p) => p.id === id)?.name || 'Unknown'
 
-  const filteredTasks =
-    projectFilter === 'all' ? tasks : tasks.filter((t) => t.projectId === projectFilter)
+  // 📖 Combined filtering: project + status + priority + search
+  const filteredTasks = tasks.filter((task) => {
+    // project filter
+    if (projectFilter !== 'all' && task.projectId !== projectFilter) return false
+    // status filter
+    if (statusFilter !== 'all' && task.status !== statusFilter) return false
+    // priority filter
+    if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false
+    // search (title or description, case-insensitive)
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      const inTitle = task.title.toLowerCase().includes(term)
+      const inDesc = task.description?.toLowerCase().includes(term)
+      if (!inTitle && !inDesc) return false
+    }
+    return true
+  })
 
   const handleCreate = (formData) => {
     dispatch(
@@ -55,6 +73,22 @@ function TasksPage() {
     setDeletingTask(null)
   }
 
+  // 📖 Reusable filter dropdown helper (small inline component)
+  const FilterSelect = ({ label, value, onChange, options }) => (
+    <div className="flex items-center gap-2">
+      <label className="text-sm text-gray-600">{label}:</label>
+      <select
+        value={value}
+        onChange={onChange}
+        className="px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none"
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
+  )
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -70,19 +104,44 @@ function TasksPage() {
         </button>
       </div>
 
-      {/* Project filter dropdown */}
-      <div className="mb-4 flex items-center gap-2">
-        <label className="text-sm text-gray-600">Filter by project:</label>
-        <select
+      {/* 📖 Filter toolbar */}
+      <div className="mb-4 flex flex-wrap items-center gap-4">
+        <FilterSelect
+          label="Project"
           value={projectFilter}
           onChange={(e) => setProjectFilter(e.target.value)}
-          className="px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none"
-        >
-          <option value="all">All Projects</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+          options={[
+            { value: 'all', label: 'All Projects' },
+            ...projects.map((p) => ({ value: p.id, label: p.name })),
+          ]}
+        />
+        <FilterSelect
+          label="Status"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          options={[
+            { value: 'all', label: 'All Statuses' },
+            { value: 'todo', label: 'To Do' },
+            { value: 'in-progress', label: 'In Progress' },
+            { value: 'done', label: 'Done' },
+          ]}
+        />
+        <FilterSelect
+          label="Priority"
+          value={priorityFilter}
+          onChange={(e) => setPriorityFilter(e.target.value)}
+          options={[
+            { value: 'all', label: 'All Priorities' },
+            { value: 'high', label: 'High' },
+            { value: 'medium', label: 'Medium' },
+            { value: 'low', label: 'Low' },
+          ]}
+        />
+        {searchTerm && (
+          <span className="text-xs text-gray-500 ml-auto">
+            Searching: "<span className="font-medium">{searchTerm}</span>"
+          </span>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -115,7 +174,6 @@ function TasksPage() {
                     <span className={`px-2 py-1 rounded text-xs ${priority.cls}`}>{priority.label}</span>
                   </td>
                   <td className="px-4 py-3">
-                    {/* 📖 Inline assignee dropdown - direct assignment without opening form */}
                     <select
                       value={task.assignee || ''}
                       onChange={(e) => dispatch(updateTask({ id: task.id, assignee: e.target.value }))}
@@ -154,7 +212,7 @@ function TasksPage() {
             {filteredTasks.length === 0 && (
               <tr>
                 <td colSpan="6" className="px-4 py-8 text-center text-gray-400">
-                  No tasks found
+                  No tasks match your filters
                 </td>
               </tr>
             )}

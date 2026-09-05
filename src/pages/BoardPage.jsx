@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   DndContext,
@@ -100,7 +101,10 @@ function DroppableColumn({ column, tasks, members, dispatch }) {
 function BoardPage() {
   const tasks = useSelector((state) => state.tasks.items)
   const members = useSelector((state) => state.members.items)
+  const searchTerm = useSelector((state) => state.ui.searchTerm)
   const dispatch = useDispatch()
+
+  const [priorityFilter, setPriorityFilter] = useState('all')
 
   // 📖 Fires when a drag ends and the item is dropped
   const handleDragEnd = (event) => {
@@ -114,6 +118,18 @@ function BoardPage() {
     }
   }
 
+  // 📖 Board-wide filters: search + priority (status is handled by columns)
+  const matchesFilters = (task) => {
+    if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      const inTitle = task.title.toLowerCase().includes(term)
+      const inDesc = task.description?.toLowerCase().includes(term)
+      if (!inTitle && !inDesc) return false
+    }
+    return true
+  }
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Kanban Board</h2>
@@ -121,10 +137,30 @@ function BoardPage() {
         👆 Cards ko drag karke columns mein move karo
       </p>
 
+      {/* Priority filter */}
+      <div className="mb-4 flex items-center gap-2">
+        <label className="text-sm text-gray-600">Priority:</label>
+        <select
+          value={priorityFilter}
+          onChange={(e) => setPriorityFilter(e.target.value)}
+          className="px-3 py-1.5 border border-gray-300 rounded text-sm bg-white focus:outline-none"
+        >
+          <option value="all">All Priorities</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        {searchTerm && (
+          <span className="text-xs text-gray-500 ml-auto">
+            Searching: "<span className="font-medium">{searchTerm}</span>"
+          </span>
+        )}
+      </div>
+
       <DndContext onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {columns.map((col) => {
-            const colTasks = tasks.filter((t) => t.status === col.key)
+            const colTasks = tasks.filter((t) => t.status === col.key && matchesFilters(t))
             return (
               <DroppableColumn
                 key={col.key}

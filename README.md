@@ -4,7 +4,7 @@ A frontend Jira-style project management tool, built with **React**, **Redux Too
 
 The project is being built in explicit, incremental phases — each phase is a real, working slice of a Jira-like task management app (UI shell → state → projects → tasks → board → team → search → comments → notifications), rather than one big upfront build.
 
-> **Status:** Phase 6 of 9 complete. See [Roadmap](#roadmap) below.
+> **Status:** Phase 7 of 9 complete. See [Roadmap](#roadmap) below.
 
 ![React](https://img.shields.io/badge/React-18-blue)
 ![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2.x-purple)
@@ -118,7 +118,7 @@ jira-clone/
 
 ## Features
 
-### Currently implemented (Phase 6)
+### Currently implemented (Phase 7)
 
 - **App shell / layout** — persistent sidebar navigation + topbar on every page.
 - **Routing** — Dashboard, Projects, Tasks, Board, Team, and a 404 page; React Router navigation without page reloads.
@@ -127,15 +127,15 @@ jira-clone/
 - **Tasks CRUD** — create, edit, and delete tasks; assign to a project and a team member.
 - **Team members page** — add/remove members with name, role, and auto-gendered avatar; shows each member's assigned task count.
 - **Inline task assignment** — assign or reassign a member to a task directly from the Tasks table or a Board card, without opening the form.
-- **Task assignment** — tasks link to projects and team members.
-- **Tasks table** — list with project, status/priority badges, assignee, and actions; filter by project.
+- **Global search** — topbar search filters tasks (title/description), projects, and board cards live, via shared Redux state.
+- **Filters** — Tasks page filters by project, status, and priority; Board page filters by priority; combined with search.
+- **Tasks table** — list with project, status/priority badges, assignee, and actions; filter by project/status/priority.
 - **Kanban board with drag & drop** — 3-column board (To Do / In Progress / Done); drag cards between columns with dnd-kit, with drop-target highlighting.
 - **Reusable modal & avatar** — shared `Modal`, `Avatar`, and form components reused across Add/Edit flows.
 - **Tailwind CSS** — fully responsive styling via utility classes.
 
 ### Planned
 
-- Search and filter by status/priority
 - Task comments
 - Notifications UI
 - REST API integration
@@ -150,7 +150,7 @@ jira-clone/
 | 4     | Tasks CRUD + Kanban board layout                    | ✅ Done     |
 | 5     | Drag & drop on the board (dnd-kit)                  | ✅ Done     |
 | 6     | Team members & task assignment                      | ✅ Done     |
-| 7     | Search & filter by status/priority                  | ⏳ Planned  |
+| 7     | Search & filter by status/priority                  | ✅ Done     |
 | 8     | Task comments                                       | ⏳ Planned  |
 | 9     | Notifications UI + REST API integration & polish    | ⏳ Planned  |
 
