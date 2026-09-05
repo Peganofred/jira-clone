@@ -4,7 +4,7 @@ A frontend Jira-style project management tool, built with **React**, **Redux Too
 
 The project is being built in explicit, incremental phases — each phase is a real, working slice of a Jira-like task management app (UI shell → state → projects → tasks → board → team → search → comments → notifications), rather than one big upfront build.
 
-> **Status:** Phase 8 of 9 complete. See [Roadmap](#roadmap) below.
+> **Status:** Phase 9 of 9 complete — all phases done! See [Roadmap](#roadmap) below.
 
 ![React](https://img.shields.io/badge/React-18-blue)
 ![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2.x-purple)
@@ -105,20 +105,26 @@ npm run preview
 jira-clone/
 ├── src/
 │   ├── components/
-│   │   ├── layout/       # Sidebar, Topbar, Layout (shared shell)
-│   │   ├── ui/           # Reusable primitives (Modal, Avatar)
-│   │   └── *.jsx         # Reusable forms (ProjectForm, TaskForm, MemberForm)
-│   ├── pages/            # Dashboard, Projects, Tasks, Board, Team, 404
-│   ├── redux/slices/     # Redux Toolkit slices (projects, tasks, members, comments, ui)
-│   ├── services/         # REST API layer (Phase 9)
-│   └── data/             # Mock data
+│   │   ├── layout/              # Sidebar, Topbar, Layout (shared shell)
+│   │   ├── ui/                  # Reusable primitives (Modal, Avatar)
+│   │   ├── NotificationsDropdown.jsx
+│   │   ├── TaskDetail.jsx       # Task detail + comments modal
+│   │   ├── TaskForm.jsx         # Create/edit task form
+│   │   ├── ProjectForm.jsx      # Create/edit project form
+│   │   └── MemberForm.jsx       # Add/edit member form
+│   ├── pages/                   # Dashboard, Projects, Tasks, Board, Team, 404
+│   ├── redux/
+│   │   ├── store.js             # Central Redux store
+│   │   └── slices/              # projects, tasks, members, comments, notifications, ui
+│   ├── services/                # REST API layer (future)
+│   └── data/mockData.js         # All mock data
 ├── index.html
 └── vite.config.js
 ```
 
 ## Features
 
-### Currently implemented (Phase 8)
+### Currently implemented (Phase 9)
 
 - **App shell / layout** — persistent sidebar navigation + topbar on every page.
 - **Routing** — Dashboard, Projects, Tasks, Board, Team, and a 404 page; React Router navigation without page reloads.
@@ -132,13 +138,18 @@ jira-clone/
 - **Filters** — Tasks page filters by project, status, and priority; Board page filters by priority; combined with search.
 - **Tasks table** — list with project, status/priority badges, assignee, and actions; filter by project/status/priority.
 - **Kanban board with drag & drop** — 3-column board (To Do / In Progress / Done); drag cards between columns with dnd-kit, with drop-target highlighting.
+- **Notifications** — bell icon with unread count badge, dropdown with mark-as-read, mark all read, dismiss individual, and clear notifications.
 - **Reusable modal & avatar** — shared `Modal`, `Avatar`, and form components reused across Add/Edit flows.
 - **Tailwind CSS** — fully responsive styling via utility classes.
 
-### Planned
+### Potential extensions
 
-- Notifications UI
-- REST API integration
+- REST API integration (JSON Server or real backend)
+- Authentication (JWT login/signup)
+- Real-time notifications (WebSocket)
+- Role-based access control
+- Dark mode
+- Deployment to Vercel/Netlify
 
 ## Roadmap
 
@@ -152,7 +163,7 @@ jira-clone/
 | 6     | Team members & task assignment                      | ✅ Done     |
 | 7     | Search & filter by status/priority                  | ✅ Done     |
 | 8     | Task comments                                       | ✅ Done     |
-| 9     | Notifications UI + REST API integration & polish    | ⏳ Planned  |
+| 9     | Notifications UI                                    | ✅ Done     |
 
 Tracked in more detail via GitHub Issues / Projects as each phase starts.
 

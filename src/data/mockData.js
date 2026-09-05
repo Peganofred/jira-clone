@@ -107,3 +107,41 @@ export const initialComments = [
     createdAt: '2026-08-12T14:00:00',
   },
 ]
+
+export const initialNotifications = [
+  {
+    id: 'n1',
+    type: 'assign',
+    text: 'Priya Verma ne aapko "Set up login screen" task assign kiya.',
+    time: '2 min ago',
+    read: false,
+  },
+  {
+    id: 'n2',
+    type: 'comment',
+    text: 'Rahul Gupta ne "Create user profile API" par comment kiya.',
+    time: '25 min ago',
+    read: false,
+  },
+  {
+    id: 'n3',
+    type: 'status',
+    text: '"Deploy to staging" task Done move ho gaya.',
+    time: '1 hour ago',
+    read: true,
+  },
+  {
+    id: 'n4',
+    type: 'project',
+    text: 'Naya project "Mobile App" create hua.',
+    time: '3 hours ago',
+    read: true,
+  },
+]
+
+export const notificationIcons = {
+  assign: '👤',
+  comment: '💬',
+  status: '✅',
+  project: '📁',
+}

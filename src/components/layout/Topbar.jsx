@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { setSearchTerm } from '../../redux/slices/uiSlice'
+import NotificationsDropdown from '../NotificationsDropdown'
 
 function Topbar() {
   const searchTerm = useSelector((state) => state.ui.searchTerm)
@@ -13,17 +14,12 @@ function Topbar() {
           type="text"
           value={searchTerm}
           onChange={(e) => dispatch(setSearchTerm(e.target.value))}
-          placeholder="Search tasks..."
+          placeholder="Search tasks, projects..."
           className="w-72 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
       <div className="flex items-center gap-4">
-        <button className="relative text-xl" title="Notifications">
-          🔔
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-            2
-          </span>
-        </button>
+        <NotificationsDropdown />
         <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
           A
         </div>
